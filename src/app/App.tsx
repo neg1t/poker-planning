@@ -1,26 +1,19 @@
-import { Flex, Typography } from 'antd'
-import { useEffect, useState } from 'react'
-import { api } from 'shared/api'
-import { IUserDTO } from 'shared/api/user/types'
+import { BrowserRouter } from 'react-router-dom'
+import locale from 'antd/locale/ru_RU'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ru'
+import { ConfigProvider } from 'antd'
+import { themeConfig } from 'shared/config/theme'
+import { Router } from './Router'
+dayjs.locale('ru')
 
 function App() {
-  const [user, setUser] = useState<IUserDTO[]>([])
-
-  const getData = async () => {
-    const users = await api.userAPI.fetchUsers()
-    setUser(users)
-  }
-
-  useEffect(() => {
-    getData()
-  }, [])
-
   return (
-    <Flex vertical gap={20}>
-      {user.map((item) => (
-        <Typography.Text key={item.name}>{item.name}</Typography.Text>
-      ))}
-    </Flex>
+    <ConfigProvider locale={locale} theme={themeConfig}>
+      <BrowserRouter>
+        <Router />
+      </BrowserRouter>
+    </ConfigProvider>
   )
 }
 
