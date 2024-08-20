@@ -7,6 +7,7 @@ import {
 import { LoginPage, RegisterPage, WeakDashboardPage } from 'pages/WeakPages'
 import React, { type ComponentProps } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { AppLayout } from './Layout'
 
 type TRoute = {
   element: ComponentProps<typeof Route>['element']
@@ -44,15 +45,17 @@ const protectedRoutes: TRoute[] = [
 ]
 
 export const Router: React.FC = () => {
-  const isAuth = false
+  const isAuth = true
 
   const renderRoutes = (routes: TRoute[]) =>
     routes.map((route) => <Route key={route.path} {...route} />)
 
   return (
-    <Routes>
-      {renderRoutes(isAuth ? protectedRoutes : weakRoutes)}
-      <Route path='*' element={<NotFoundPage />} />
-    </Routes>
+    <AppLayout>
+      <Routes>
+        {renderRoutes(isAuth ? protectedRoutes : weakRoutes)}
+        <Route path='*' element={<NotFoundPage />} />
+      </Routes>
+    </AppLayout>
   )
 }
