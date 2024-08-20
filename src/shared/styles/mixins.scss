@@ -1,0 +1,65 @@
+$max-font-size: 32px;
+
+@mixin font-size {
+  @for $i from 1 through $max-font-size {
+    .fz-#{$i} {
+      font-size: $i * 1px;
+    }
+  }
+}
+
+@mixin width {
+  @for $i from 1 through 10000 {
+    .w-#{$i} {
+      width: $i * 1px;
+    }
+  }
+}
+
+@mixin max-width {
+  @for $i from 1 through 10000 {
+    .max-w-#{$i} {
+      max-width: $i * 1px;
+    }
+  }
+}
+
+@mixin min-width {
+  @for $i from 1 through 10000 {
+    .min-w-#{$i} {
+      min-width: $i * 1px;
+    }
+  }
+}
+
+@mixin height {
+  @for $i from 1 through 10000 {
+    .h-#{$i} {
+      height: $i * 1px;
+    }
+  }
+}
+
+@mixin max-height {
+  @for $i from 1 through 10000 {
+    .max-h-#{$i} {
+      max-height: $i * 1px;
+    }
+  }
+}
+
+@mixin min-height {
+  @for $i from 1 through 10000 {
+    .min-h-#{$i} {
+      min-height: $i * 1px;
+    }
+  }
+}
+
+@mixin margin-bottom {
+  @for $i from 0 through 10000 {
+    .margin-b-#{$i} {
+      margin-bottom: $i * 1px;
+    }
+  }
+}

@@ -5,9 +5,10 @@ import {
   SettingsPage,
 } from 'pages/ProtectedPages'
 import { LoginPage, RegisterPage, WeakDashboardPage } from 'pages/WeakPages'
-import React, { type ComponentProps } from 'react'
+import React, { useEffect, type ComponentProps } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { AppLayout } from './Layout'
+import { getAuth } from 'firebase/auth'
 
 type TRoute = {
   element: ComponentProps<typeof Route>['element']
@@ -45,7 +46,12 @@ const protectedRoutes: TRoute[] = [
 ]
 
 export const Router: React.FC = () => {
-  const isAuth = true
+  const auth = getAuth()
+  const isAuth = auth.currentUser
+
+  useEffect(() => {
+    console.log('isAuth', isAuth)
+  }, [isAuth])
 
   const renderRoutes = (routes: TRoute[]) =>
     routes.map((route) => <Route key={route.path} {...route} />)

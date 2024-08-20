@@ -1,0 +1,23 @@
+.w-full {
+  width: -webkit-fill-available;
+}
+
+.input-without-arrows {
+  &input::-webkit-outer-spin-button,
+  &input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &input[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
+
+.w-all {
+  width: 100%;
+}
+
+.inactive-row {
+  background-color: #fff2f0; /* красный цвет для неактивной строки */
+}

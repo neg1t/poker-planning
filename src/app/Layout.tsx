@@ -4,6 +4,7 @@ import { HomeOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 
 import './styles.scss'
+import { getAuth } from 'firebase/auth'
 
 interface LayoutProps {
   children: React.ReactNode | React.ReactNode[]
@@ -11,10 +12,11 @@ interface LayoutProps {
 
 export const AppLayout: React.FC<LayoutProps> = (props) => {
   const { children } = props
+  const auth = getAuth()
 
   const navigate = useNavigate()
 
-  const isAuth = true
+  const isAuth = auth.currentUser
 
   const homeClickHandler = () => {
     navigate('/')
