@@ -58,7 +58,7 @@ export const LoginForm: React.FC = () => {
 
       <Flex vertical justify='center'>
         <Button loading={isLoading} type='primary' onClick={() => submit()}>
-          Зарегистрироваться
+          Войти
         </Button>
       </Flex>
     </Form>

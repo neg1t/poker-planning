@@ -5,10 +5,8 @@ import {
   SettingsPage,
 } from 'pages/ProtectedPages'
 import { LoginPage, RegisterPage, WeakDashboardPage } from 'pages/WeakPages'
-import React, { useEffect, type ComponentProps } from 'react'
+import React, { type ComponentProps } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { AppLayout } from './Layout'
-import { getAuth } from 'firebase/auth'
 
 type TRoute = {
   element: ComponentProps<typeof Route>['element']
@@ -45,23 +43,20 @@ const protectedRoutes: TRoute[] = [
   },
 ]
 
-export const Router: React.FC = () => {
-  const auth = getAuth()
-  const isAuth = auth.currentUser
+interface RouterProps {
+  isAuth: boolean
+}
 
-  useEffect(() => {
-    console.log('isAuth', isAuth)
-  }, [isAuth])
+export const Router: React.FC<RouterProps> = (props) => {
+  const { isAuth } = props
 
   const renderRoutes = (routes: TRoute[]) =>
     routes.map((route) => <Route key={route.path} {...route} />)
 
   return (
-    <AppLayout>
-      <Routes>
-        {renderRoutes(isAuth ? protectedRoutes : weakRoutes)}
-        <Route path='*' element={<NotFoundPage />} />
-      </Routes>
-    </AppLayout>
+    <Routes>
+      {renderRoutes(isAuth ? protectedRoutes : weakRoutes)}
+      <Route path='*' element={<NotFoundPage />} />
+    </Routes>
   )
 }

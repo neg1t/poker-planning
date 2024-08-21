@@ -2,21 +2,25 @@ import { Button, Flex, Layout } from 'antd'
 import React from 'react'
 import { HomeOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
-
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
+import { SpinScreen } from 'shared/components'
+import { useUnit } from 'effector-react'
+import { userModel } from 'entities/user'
+import { Router } from './Router'
 import './styles.scss'
-import { getAuth } from 'firebase/auth'
 
-interface LayoutProps {
-  children: React.ReactNode | React.ReactNode[]
-}
+export const AppLayout: React.FC = () => {
+  const { events, stores } = userModel
 
-export const AppLayout: React.FC<LayoutProps> = (props) => {
-  const { children } = props
-  const auth = getAuth()
+  const firebaseAuth = getAuth()
+  const auth = useUnit(stores.$auth)
+  const user = useUnit(stores.$user)
+
+  onAuthStateChanged(firebaseAuth, (currentUser) => {
+    events.userUpdate(currentUser)
+  })
 
   const navigate = useNavigate()
-
-  const isAuth = auth.currentUser
 
   const homeClickHandler = () => {
     navigate('/')
@@ -27,11 +31,17 @@ export const AppLayout: React.FC<LayoutProps> = (props) => {
   }
 
   const logoutClickHandler = () => {
-    //todo logout function
+    if (auth) {
+      signOut(auth)
+    }
   }
 
   const signUpHandler = () => {
     navigate('/register')
+  }
+
+  if (user === false) {
+    return <SpinScreen />
   }
 
   return (
@@ -46,12 +56,12 @@ export const AppLayout: React.FC<LayoutProps> = (props) => {
           />
 
           <Flex gap={20}>
-            {!isAuth && (
+            {!user && (
               <Button type='primary' size='small' onClick={signUpHandler}>
                 Регистрация
               </Button>
             )}
-            {isAuth ? (
+            {user ? (
               <Button
                 type='primary'
                 size='small'
@@ -75,7 +85,7 @@ export const AppLayout: React.FC<LayoutProps> = (props) => {
       </Layout.Header>
 
       <Layout.Content className='app-layout__content'>
-        {children}
+        <Router isAuth={!!user} />
       </Layout.Content>
     </Layout>
   )
