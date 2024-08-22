@@ -3,7 +3,7 @@ import React from 'react'
 import { HomeOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
-import { SpinScreen } from 'shared/components'
+import { Spinner } from 'shared/components'
 import { useUnit } from 'effector-react'
 import { userModel } from 'entities/user'
 import { Router } from './Router'
@@ -15,9 +15,11 @@ export const AppLayout: React.FC = () => {
   const firebaseAuth = getAuth()
   const auth = useUnit(stores.$auth)
   const user = useUnit(stores.$user)
+  const userDataLoad = useUnit(stores.$userDataLoad)
 
   onAuthStateChanged(firebaseAuth, (currentUser) => {
     events.userUpdate(currentUser)
+    events.setUserDataLoad(true)
   })
 
   const navigate = useNavigate()
@@ -40,8 +42,8 @@ export const AppLayout: React.FC = () => {
     navigate('/register')
   }
 
-  if (user === false) {
-    return <SpinScreen />
+  if (userDataLoad === false) {
+    return <Spinner.Screen />
   }
 
   return (
