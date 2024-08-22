@@ -1,1 +1,1 @@
-export { SpinScreen } from './SpinScreen'
+export { Spinner } from './SpinScreen'
