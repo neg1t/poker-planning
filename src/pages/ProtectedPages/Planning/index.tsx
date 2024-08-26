@@ -1,4 +1,4 @@
-import React, { type ComponentProps, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { planModel, UsersList, VoteButtons } from 'entities/plan'
 import { useUnit } from 'effector-react'
@@ -8,9 +8,9 @@ import { userModel } from 'entities/user'
 import { DB_TABLES } from 'shared/api'
 import { doc, getFirestore, onSnapshot } from 'firebase/firestore'
 import type { Unsubscribe } from 'firebase/auth'
-import type { PlanDTO } from 'shared/api/plan/types'
-import './styles.scss'
+import type { PlanDTO, PlanVoteDTO } from 'shared/api/plan/types'
 import useUpdateUserName from 'shared/hooks/useUpdateUserName'
+import './styles.scss'
 
 export const PlanningPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -19,13 +19,19 @@ export const PlanningPage: React.FC = () => {
 
   const plan = useUnit(stores.$currentPlan)
   const mySelf = useUnit(userModel.stores.$user)
+  const currentPlanVote = useUnit(stores.$currentPlanVote)
 
   const isCreator = mySelf?.uid === plan?.creatorId
-  const voteButtonDisabled = !isCreator || false // todo проверка на всех проголосовавших
+
+  const allUsersVotes =
+    currentPlanVote?.usersVotes?.length === plan?.users?.length
+
+  const voteButtonDisabled = !isCreator || !allUsersVotes // todo проверка на всех проголосовавших
 
   // если у пользователя нет имени заставляем его создает его)
   useUpdateUserName({ id })
 
+  // подписываемся на обновление текущего плана
   useEffect(() => {
     let unsubscribe: Unsubscribe
     if (id) {
@@ -35,11 +41,37 @@ export const PlanningPage: React.FC = () => {
           events.planUpdate(doc.data() as PlanDTO)
         },
       )
+
+      effects.getLastPlanVoteFx(id)
     }
 
-    return () => unsubscribe()
+    return () => unsubscribe && unsubscribe()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
+
+  // получаем данные о последнем голосовании
+  useEffect(() => {
+    if (id) {
+      effects.getLastPlanVoteFx(id)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
+
+  // подписываемся на обновление текущего голосования
+  useEffect(() => {
+    let unsubscribe: Unsubscribe
+    if (currentPlanVote?.id) {
+      unsubscribe = onSnapshot(
+        doc(getFirestore(), DB_TABLES.PLAN_VOTE, currentPlanVote.id),
+        (doc) => {
+          events.planVoteUpdate(doc.data() as PlanVoteDTO)
+        },
+      )
+    }
+
+    return () => unsubscribe && unsubscribe()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPlanVote?.id])
 
   useEffect(() => {
     if (id) {
@@ -47,11 +79,6 @@ export const PlanningPage: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
-
-  const voteClickHandler: ComponentProps<typeof VoteButtons>['voteClick'] =
-    (vote) => () => {
-      console.log('vote', vote)
-    }
 
   if (!plan) {
     return <Spinner />
@@ -73,7 +100,7 @@ export const PlanningPage: React.FC = () => {
       </Flex>
       <Divider />
       <Flex flex={'10%'} justify='center' className='planning-page__footer'>
-        <VoteButtons voteClick={voteClickHandler} />
+        <VoteButtons />
       </Flex>
     </div>
   )

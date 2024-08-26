@@ -2,6 +2,8 @@ import React from 'react'
 import { planModel } from '..'
 import { useUnit } from 'effector-react'
 import { Card, Flex, Typography } from 'antd'
+import './styles.scss'
+import clsx from 'clsx'
 
 const { Text } = Typography
 
@@ -15,8 +17,9 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
   const { stores } = planModel
 
   const plan = useUnit(stores.$currentPlan)
+  const planVote = useUnit(stores.$currentPlanVote)
 
-  if (!plan) {
+  if (!plan?.users?.length) {
     return null
   }
 
@@ -24,6 +27,12 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
     <Flex gap={30} justify='space-between' wrap align='center'>
       {plan.users.map((user) => (
         <Card
+          className={clsx(
+            'user-card',
+            !!planVote?.usersVotes.some((user) =>
+              plan.users.map((planUser) => planUser.id).includes(user.id),
+            ) && 'user-card_voted',
+          )}
           key={user.id}
           onClick={onClick && onClick(user.id)}
           hoverable={!!onClick}

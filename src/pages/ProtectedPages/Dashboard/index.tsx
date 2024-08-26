@@ -29,6 +29,7 @@ export const ProtectedDashboardPage: React.FC = () => {
           votesToSelect: FIBONACCI_VOTES,
         })
         .then((uid) => {
+          effects.createPlanVoteFx(uid)
           navigate(`planning/${uid}`)
         })
     }

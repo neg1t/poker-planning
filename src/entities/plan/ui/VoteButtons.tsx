@@ -2,19 +2,29 @@ import { Button, Flex } from 'antd'
 import React from 'react'
 import { planModel } from '..'
 import { useUnit } from 'effector-react'
+import { userModel } from 'entities/user'
 
-interface VoteButtonsProps {
-  voteClick: (count: number) => (ev: React.MouseEvent) => void
-}
-
-export const VoteButtons: React.FC<VoteButtonsProps> = (props) => {
-  const { voteClick } = props
-
-  const { stores } = planModel
+export const VoteButtons: React.FC = () => {
+  const { stores, effects } = planModel
 
   const plan = useUnit(stores.$currentPlan)
+  const mySelf = useUnit(userModel.stores.$user)
+  const currentPlanVote = useUnit(stores.$currentPlanVote)
 
-  if (!plan) {
+  const voteLoading = useUnit(effects.updatePlanVoteFx.pending)
+
+  const voteClickHandler = (vote: number) => () => {
+    if (currentPlanVote && plan && mySelf) {
+      effects.updatePlanVoteFx({
+        id: currentPlanVote.id,
+        planId: plan.id,
+        user: mySelf,
+        vote,
+      })
+    }
+  }
+
+  if (!plan?.votesToSelect?.length) {
     return null
   }
 
@@ -25,7 +35,8 @@ export const VoteButtons: React.FC<VoteButtonsProps> = (props) => {
           key={vote}
           size='large'
           type='primary'
-          onClick={voteClick(vote)}
+          disabled={voteLoading}
+          onClick={voteClickHandler(vote)}
         >
           {vote}
         </Button>

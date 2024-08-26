@@ -1,0 +1,7 @@
+.user-card {
+  background-color: var(--ant-red);
+
+  &_voted {
+    background-color: var(--ant-green);
+  }
+}
