@@ -1,10 +1,11 @@
 import React from 'react'
 import { planModel } from '..'
 import { useUnit } from 'effector-react'
-import { Card, Flex, Typography } from 'antd'
+import { Button, Card, Flex, Typography } from 'antd'
 import clsx from 'clsx'
 import crownIcon from 'shared/assets/icons/crown.svg'
 import './styles.scss'
+import { DeleteOutlined } from '@ant-design/icons'
 import { userModel } from 'entities/user'
 
 const { Text } = Typography
@@ -16,15 +17,24 @@ interface UsersListProps {
 export const UsersList: React.FC<UsersListProps> = (props) => {
   const { onClick } = props
 
-  const { stores } = planModel
+  const { stores, effects } = planModel
 
   const plan = useUnit(stores.$currentPlan)
   const planVote = useUnit(stores.$currentPlanVote)
   const mySelf = useUnit(userModel.stores.$user)
 
+  const isCreator = mySelf?.uid === plan?.creatorId
+
   const mySelfVote = planVote?.usersVotes.filter(
     (userVote) => userVote.id === mySelf?.uid,
   )[0]?.vote
+
+  const kickUser = (userId: string) => () => {
+    effects.leavePlanFx({
+      planId: plan!.id,
+      userId,
+    })
+  }
 
   if (!plan?.users?.length) {
     return null
@@ -47,10 +57,22 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
           {plan.creatorId === user.id && (
             <img className='user-card__lead' src={crownIcon} alt='lead' />
           )}
+
+          {isCreator && user.id !== mySelf?.uid && (
+            <Button
+              onClick={kickUser(user.id)}
+              className='user-card__remove'
+              icon={<DeleteOutlined />}
+              type='text'
+              size='small'
+            />
+          )}
+
           <Flex vertical justify='center' align='center'>
             {user.id === mySelf?.uid && mySelfVote && (
               <div className='user-card__vote'>{mySelfVote}</div>
             )}
+
             <Text>{user.name || 'Кто ты воин?'}</Text>
           </Flex>
         </Card>

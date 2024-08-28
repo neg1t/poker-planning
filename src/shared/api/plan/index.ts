@@ -72,7 +72,7 @@ export const fetchLeavePlan = async (
       await getDoc(doc(db, DB_TABLES.PLANNING, data.planId))
     ).data() as PlanDTO
 
-    const filteredUsers = plan.users.filter((user) => user.id !== data.user.uid)
+    const filteredUsers = plan.users.filter((user) => user.id !== data.userId)
 
     return await updateDoc(doc(db, DB_TABLES.PLANNING, data.planId), {
       users: filteredUsers,

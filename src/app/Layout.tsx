@@ -49,7 +49,7 @@ export const AppLayout: React.FC = () => {
       await planModel.effects
         .leavePlanFx({
           planId: plan!.id,
-          user: user!,
+          userId: user!.uid,
         })
         .then(() => {
           signOut(auth)

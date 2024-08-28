@@ -51,7 +51,7 @@ export interface ReqFetchJoinToPlan {
   planId: string
 }
 export interface ReqFetchLeavePlan {
-  user: User
+  userId: string
   planId: string
 }
 

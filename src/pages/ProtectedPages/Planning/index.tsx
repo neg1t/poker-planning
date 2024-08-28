@@ -40,7 +40,7 @@ export const PlanningPage: React.FC = () => {
   const leavePlanning = () => {
     effects.leavePlanFx({
       planId: id!,
-      user: mySelf!,
+      userId: mySelf!.uid,
     })
   }
 
