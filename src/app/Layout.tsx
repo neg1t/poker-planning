@@ -7,6 +7,7 @@ import { Spinner } from 'shared/components'
 import { useUnit } from 'effector-react'
 import { userModel } from 'entities/user'
 import { Router } from './Router'
+import { planModel } from 'entities/plan'
 import './styles.scss'
 
 export const AppLayout: React.FC = () => {
@@ -17,6 +18,8 @@ export const AppLayout: React.FC = () => {
   const user = useUnit(stores.$user)
   const userShouldNavigate = useUnit(stores.$userShouldNavigateTo)
   const userDataLoad = useUnit(stores.$userDataLoad)
+
+  const plan = useUnit(planModel.stores.$currentPlan)
 
   onAuthStateChanged(firebaseAuth, (currentUser) => {
     events.userUpdate(currentUser)
@@ -41,9 +44,16 @@ export const AppLayout: React.FC = () => {
     navigate('/login')
   }
 
-  const logoutClickHandler = () => {
+  const logoutClickHandler = async () => {
     if (auth) {
-      signOut(auth)
+      await planModel.effects
+        .leavePlanFx({
+          planId: plan!.id,
+          user: user!,
+        })
+        .then(() => {
+          signOut(auth)
+        })
     }
   }
 

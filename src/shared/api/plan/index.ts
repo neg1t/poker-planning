@@ -17,6 +17,7 @@ import {
   PlanVoteDTO,
   PlanVoteUpdateDTO,
   ReqFetchJoinToPlan,
+  ReqFetchLeavePlan,
   ReqFetchUpdatePlanCurrentVote,
   ReqFetchUpdateResult,
 } from './types'
@@ -44,6 +45,10 @@ export const fetchJoinToPlan = async (
     const plan = (
       await getDoc(doc(db, DB_TABLES.PLANNING, data.planId))
     ).data() as PlanDTO
+
+    if (plan.users.some((user) => user.id === data.user.uid)) {
+      return
+    }
     return await updateDoc(doc(db, DB_TABLES.PLANNING, data.planId), {
       users: [
         ...plan.users,
@@ -53,6 +58,24 @@ export const fetchJoinToPlan = async (
           name: data.user.displayName,
         },
       ],
+    })
+  } catch (err) {
+    return Promise.reject(err)
+  }
+}
+
+export const fetchLeavePlan = async (
+  data: ReqFetchLeavePlan,
+): Promise<void> => {
+  try {
+    const plan = (
+      await getDoc(doc(db, DB_TABLES.PLANNING, data.planId))
+    ).data() as PlanDTO
+
+    const filteredUsers = plan.users.filter((user) => user.id !== data.user.uid)
+
+    return await updateDoc(doc(db, DB_TABLES.PLANNING, data.planId), {
+      users: filteredUsers,
     })
   } catch (err) {
     return Promise.reject(err)

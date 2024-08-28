@@ -11,6 +11,7 @@ import type { Unsubscribe } from 'firebase/auth'
 import type { PlanDTO, PlanVoteDTO } from 'shared/api/plan/types'
 import useUpdateUserName from 'shared/hooks/useUpdateUserName'
 import './styles.scss'
+import useComponentWillUnmount from 'shared/hooks/useComponentWillUnmount'
 
 export const PlanningPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -34,6 +35,13 @@ export const PlanningPage: React.FC = () => {
   if (!mySelf?.uid) {
     navigate('/')
     userModel.events.userShouldNavigateUpdate(location.pathname)
+  }
+
+  const leavePlanning = () => {
+    effects.leavePlanFx({
+      planId: id!,
+      user: mySelf!,
+    })
   }
 
   useEffect(() => {
@@ -115,6 +123,10 @@ export const PlanningPage: React.FC = () => {
       effects.updateResultFx({ result, planVoteId: currentPlanVote.id })
     }
   }
+
+  useComponentWillUnmount(() => {
+    leavePlanning()
+  })
 
   const createNewVoting = () => {
     effects.createPlanVoteFx(id!)

@@ -50,6 +50,10 @@ export interface ReqFetchJoinToPlan {
   user: User
   planId: string
 }
+export interface ReqFetchLeavePlan {
+  user: User
+  planId: string
+}
 
 export interface ReqFetchUpdateResult {
   planVoteId: string

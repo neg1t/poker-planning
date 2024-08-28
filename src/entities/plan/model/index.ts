@@ -7,6 +7,7 @@ import type {
   PlanVoteDTO,
   PlanVoteUpdateDTO,
   ReqFetchJoinToPlan,
+  ReqFetchLeavePlan,
   ReqFetchUpdatePlanCurrentVote,
   ReqFetchUpdateResult,
 } from 'shared/api/plan/types'
@@ -39,6 +40,10 @@ const createPlanVoteFx = createEffect<string, string>(
 
 const joinPlanFx = createEffect<ReqFetchJoinToPlan, void>(
   async (params) => await api.planAPI.fetchJoinToPlan(params),
+)
+
+const leavePlanFx = createEffect<ReqFetchLeavePlan, void>(
+  async (params) => await api.planAPI.fetchLeavePlan(params),
 )
 
 const updateResultFx = createEffect<ReqFetchUpdateResult, void>(
@@ -100,6 +105,7 @@ export const effects = {
   createPlanVoteFx,
   joinPlanFx,
   updateResultFx,
+  leavePlanFx,
 }
 
 export const events = {
