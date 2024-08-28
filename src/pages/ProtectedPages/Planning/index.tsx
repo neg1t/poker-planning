@@ -119,7 +119,7 @@ export const PlanningPage: React.FC = () => {
       Math.round((result / (currentPlanVote?.usersVotes.length || 0)) * 100) /
       100
 
-    if (currentPlanVote?.id) {
+    if (currentPlanVote?.id && !isNaN(result)) {
       effects.updateResultFx({ result, planVoteId: currentPlanVote.id })
     }
   }
