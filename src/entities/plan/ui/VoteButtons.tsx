@@ -4,7 +4,13 @@ import { planModel } from '..'
 import { useUnit } from 'effector-react'
 import { userModel } from 'entities/user'
 
-export const VoteButtons: React.FC = () => {
+interface VoteButtonsProps {
+  disabled?: boolean
+}
+
+export const VoteButtons: React.FC<VoteButtonsProps> = (props) => {
+  const { disabled } = props
+
   const { stores, effects } = planModel
 
   const plan = useUnit(stores.$currentPlan)
@@ -35,7 +41,7 @@ export const VoteButtons: React.FC = () => {
           key={vote}
           size='large'
           type='primary'
-          disabled={voteLoading}
+          disabled={voteLoading || disabled}
           onClick={voteClickHandler(vote)}
         >
           {vote}

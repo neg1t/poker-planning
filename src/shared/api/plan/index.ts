@@ -8,6 +8,7 @@ import {
   orderBy,
   limit,
   getDocs,
+  updateDoc,
 } from 'firebase/firestore/lite'
 import {
   CreatePlanDTO,
@@ -15,6 +16,9 @@ import {
   PlanUserNameUpdateDTO,
   PlanVoteDTO,
   PlanVoteUpdateDTO,
+  ReqFetchJoinToPlan,
+  ReqFetchUpdatePlanCurrentVote,
+  ReqFetchUpdateResult,
 } from './types'
 import { db } from 'shared/firebase'
 import unqiid from 'uniqid'
@@ -24,9 +28,58 @@ import dayjs from 'dayjs'
 export const fetchCreatePlan = async (data: CreatePlanDTO): Promise<string> => {
   try {
     const uid = unqiid()
-    return await setDoc(doc(db, DB_TABLES.PLANNING, uid), data).then(() =>
-      Promise.resolve(uid),
-    )
+    return await setDoc(doc(db, DB_TABLES.PLANNING, uid), {
+      ...data,
+      id: uid,
+    }).then(() => Promise.resolve(uid))
+  } catch (err) {
+    return Promise.reject(err)
+  }
+}
+
+export const fetchJoinToPlan = async (
+  data: ReqFetchJoinToPlan,
+): Promise<void> => {
+  try {
+    const plan = (
+      await getDoc(doc(db, DB_TABLES.PLANNING, data.planId))
+    ).data() as PlanDTO
+    return await updateDoc(doc(db, DB_TABLES.PLANNING, data.planId), {
+      users: [
+        ...plan.users,
+        {
+          id: data.user.uid,
+          active: true,
+          name: data.user.displayName,
+        },
+      ],
+    })
+  } catch (err) {
+    return Promise.reject(err)
+  }
+}
+
+export const fetchUpdatePlanCurrentVote = async ({
+  planId,
+  planVoteId,
+}: ReqFetchUpdatePlanCurrentVote): Promise<void> => {
+  try {
+    return await updateDoc(doc(db, DB_TABLES.PLANNING, planId), {
+      currentVoteId: planVoteId,
+    })
+  } catch (err) {
+    return Promise.reject(err)
+  }
+}
+
+export const fetchUpdateResult = async ({
+  planVoteId,
+  result,
+}: ReqFetchUpdateResult): Promise<void> => {
+  try {
+    return await updateDoc(doc(db, DB_TABLES.PLAN_VOTE, planVoteId), {
+      result,
+    })
   } catch (err) {
     return Promise.reject(err)
   }
@@ -58,16 +111,17 @@ export const fetchPlanUserNameUpdate = async (
   }
 }
 
-export const fetchPlanVoteCreate = async (planId: string): Promise<void> => {
+export const fetchPlanVoteCreate = async (planId: string): Promise<string> => {
   try {
     const newId = unqiid()
     const planVoteRef = doc(db, DB_TABLES.PLAN_VOTE, newId)
-    return await setDoc(planVoteRef, {
+    await setDoc(planVoteRef, {
       id: newId,
       planId,
       createdAt: dayjs().format('DD-MM-YYYY HH:mm:ss'),
       usersVotes: [],
     } as PlanVoteDTO)
+    return newId
   } catch (err) {
     return Promise.reject(err)
   }

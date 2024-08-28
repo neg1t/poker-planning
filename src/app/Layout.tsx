@@ -1,5 +1,5 @@
 import { Button, Flex, Layout } from 'antd'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { HomeOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
@@ -15,6 +15,7 @@ export const AppLayout: React.FC = () => {
   const firebaseAuth = getAuth()
   const auth = useUnit(stores.$auth)
   const user = useUnit(stores.$user)
+  const userShouldNavigate = useUnit(stores.$userShouldNavigateTo)
   const userDataLoad = useUnit(stores.$userDataLoad)
 
   onAuthStateChanged(firebaseAuth, (currentUser) => {
@@ -23,6 +24,14 @@ export const AppLayout: React.FC = () => {
   })
 
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (user?.uid && userShouldNavigate) {
+      navigate(userShouldNavigate)
+      events.userShouldNavigateUpdate('')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userShouldNavigate, user])
 
   const homeClickHandler = () => {
     navigate('/')

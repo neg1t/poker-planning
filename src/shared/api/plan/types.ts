@@ -11,6 +11,7 @@ export interface PlanDTO {
   id: string
   creatorId: string
   users: PlanUserDTO[]
+  currentVoteId?: string
   votesToSelect: number[]
 }
 
@@ -35,6 +36,7 @@ export interface PlanVoteDTO {
   planId: string
   createdAt: string
   usersVotes: UsersVoteDTO[]
+  result?: number
 }
 
 export interface PlanVoteUpdateDTO {
@@ -42,4 +44,19 @@ export interface PlanVoteUpdateDTO {
   planId: string
   user: User
   vote: number
+}
+
+export interface ReqFetchJoinToPlan {
+  user: User
+  planId: string
+}
+
+export interface ReqFetchUpdateResult {
+  planVoteId: string
+  result: number
+}
+
+export interface ReqFetchUpdatePlanCurrentVote {
+  planId: string
+  planVoteId: string
 }

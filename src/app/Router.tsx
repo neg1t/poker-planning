@@ -6,7 +6,7 @@ import {
 } from 'pages/ProtectedPages'
 import { LoginPage, RegisterPage, WeakDashboardPage } from 'pages/WeakPages'
 import React, { type ComponentProps } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 type TRoute = {
   element: ComponentProps<typeof Route>['element']
@@ -26,12 +26,24 @@ const weakRoutes: TRoute[] = [
     element: <RegisterPage />,
     path: '/register',
   },
+  {
+    element: <PlanningPage />,
+    path: '/planning/:id',
+  },
 ]
 
 const protectedRoutes: TRoute[] = [
   {
-    element: <ProtectedDashboardPage />,
+    path: '/register',
+    element: <Navigate to='/' replace />,
+  },
+  {
+    path: '/login',
+    element: <Navigate to='/' replace />,
+  },
+  {
     path: '/',
+    element: <ProtectedDashboardPage />,
   },
   {
     element: <PlanningPage />,

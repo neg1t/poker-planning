@@ -1,5 +1,19 @@
 .user-card {
-  background-color: var(--ant-red);
+  background-color: var(--ant-red-4);
+  width: 150px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+
+  &__lead {
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
 
   &_voted {
     background-color: var(--ant-green);

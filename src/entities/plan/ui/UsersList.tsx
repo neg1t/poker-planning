@@ -2,8 +2,9 @@ import React from 'react'
 import { planModel } from '..'
 import { useUnit } from 'effector-react'
 import { Card, Flex, Typography } from 'antd'
-import './styles.scss'
 import clsx from 'clsx'
+import crownIcon from 'shared/assets/icons/crown.svg'
+import './styles.scss'
 
 const { Text } = Typography
 
@@ -24,19 +25,22 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
   }
 
   return (
-    <Flex gap={30} justify='space-between' wrap align='center'>
+    <Flex gap={30} justify='space-around' wrap align='center'>
       {plan.users.map((user) => (
         <Card
           className={clsx(
             'user-card',
-            !!planVote?.usersVotes.some((user) =>
-              plan.users.map((planUser) => planUser.id).includes(user.id),
+            !!planVote?.usersVotes.some(
+              (voteUser) => voteUser.id === user.id,
             ) && 'user-card_voted',
           )}
           key={user.id}
           onClick={onClick && onClick(user.id)}
           hoverable={!!onClick}
         >
+          {plan.creatorId === user.id && (
+            <img className='user-card__lead' src={crownIcon} alt='lead' />
+          )}
           <Text>{user.name || 'Кто ты воин?'}</Text>
         </Card>
       ))}

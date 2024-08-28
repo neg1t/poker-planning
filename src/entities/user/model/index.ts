@@ -16,9 +16,16 @@ const userUpdate = createEvent<User | null>()
 
 const setUserDataLoad = createEvent<boolean>()
 
+const userShouldNavigateUpdate = createEvent<string>()
+
 //? _____________________________stores_____________________________________
 const $auth = createStore<Auth | null>(getAuth()).on(
   authUpdate,
+  (_, payload) => payload,
+)
+
+const $userShouldNavigateTo = createStore<string>('').on(
+  userShouldNavigateUpdate,
   (_, payload) => payload,
 )
 
@@ -36,6 +43,11 @@ const $user = createStore<User | null>(null).on(
 
 export const effects = { updateUserNameFx }
 
-export const events = { authUpdate, userUpdate, setUserDataLoad }
+export const events = {
+  authUpdate,
+  userUpdate,
+  setUserDataLoad,
+  userShouldNavigateUpdate,
+}
 
-export const stores = { $auth, $user, $userDataLoad }
+export const stores = { $auth, $user, $userDataLoad, $userShouldNavigateTo }

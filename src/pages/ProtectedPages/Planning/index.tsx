@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { planModel, UsersList, VoteButtons } from 'entities/plan'
 import { useUnit } from 'effector-react'
-import { Button, Divider, Flex } from 'antd'
+import { Button, Divider, Flex, Typography } from 'antd'
 import { Spinner } from 'shared/components'
 import { userModel } from 'entities/user'
 import { DB_TABLES } from 'shared/api'
@@ -16,6 +16,9 @@ export const PlanningPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
 
   const { effects, stores, events } = planModel
+  const location = useLocation()
+
+  const navigate = useNavigate()
 
   const plan = useUnit(stores.$currentPlan)
   const mySelf = useUnit(userModel.stores.$user)
@@ -26,7 +29,24 @@ export const PlanningPage: React.FC = () => {
   const allUsersVotes =
     currentPlanVote?.usersVotes?.length === plan?.users?.length
 
-  const voteButtonDisabled = !isCreator || !allUsersVotes // todo проверка на всех проголосовавших
+  const voteButtonDisabled = !allUsersVotes ? !isCreator : false
+
+  if (!mySelf?.uid) {
+    navigate('/')
+    userModel.events.userShouldNavigateUpdate(location.pathname)
+  }
+
+  useEffect(() => {
+    if (plan?.id && mySelf?.displayName) {
+      if (!plan.users.map((item) => item.id).includes(mySelf.uid)) {
+        effects.joinPlanFx({
+          planId: plan.id,
+          user: mySelf,
+        })
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mySelf, plan])
 
   // если у пользователя нет имени заставляем его создает его)
   useUpdateUserName({ id })
@@ -38,7 +58,8 @@ export const PlanningPage: React.FC = () => {
       unsubscribe = onSnapshot(
         doc(getFirestore(), DB_TABLES.PLANNING, id!),
         (doc) => {
-          events.planUpdate(doc.data() as PlanDTO)
+          const newPlan = doc.data() as PlanDTO
+          events.planUpdate(newPlan)
         },
       )
 
@@ -80,6 +101,25 @@ export const PlanningPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
+  const voteButtonClick = () => {
+    let result = 0
+    currentPlanVote?.usersVotes.forEach((vote) => {
+      result += vote.vote
+    })
+
+    result =
+      Math.round((result / (currentPlanVote?.usersVotes.length || 0)) * 100) /
+      100
+
+    if (currentPlanVote?.id) {
+      effects.updateResultFx({ result, planVoteId: currentPlanVote.id })
+    }
+  }
+
+  const createNewVoting = () => {
+    effects.createPlanVoteFx(id!)
+  }
+
   if (!plan) {
     return <Spinner />
   }
@@ -87,20 +127,45 @@ export const PlanningPage: React.FC = () => {
   return (
     <div className='planning-page'>
       <Flex flex={'5%'} justify='center' className='planning-page__header'>
-        a
+        <div />
       </Flex>
       <Divider />
       <Flex flex={'85%'} justify='center' className='planning-page__content'>
         <Flex vertical gap={20}>
           <UsersList />
-          <Button size='large' disabled={voteButtonDisabled} type='primary'>
-            Голосовать
-          </Button>
+
+          {currentPlanVote?.result && (
+            <Flex vertical gap={10} justify='center' align='center'>
+              <Typography.Text>
+                Результат: {currentPlanVote?.result}
+              </Typography.Text>
+              <Button
+                disabled={!isCreator}
+                onClick={createNewVoting}
+                type='primary'
+              >
+                Новое голосование
+              </Button>
+            </Flex>
+          )}
+
+          {!currentPlanVote?.result && (
+            <Flex justify='center' align='center'>
+              <Button
+                size='large'
+                disabled={voteButtonDisabled}
+                type='primary'
+                onClick={voteButtonClick}
+              >
+                Голосовать
+              </Button>
+            </Flex>
+          )}
         </Flex>
       </Flex>
       <Divider />
       <Flex flex={'10%'} justify='center' className='planning-page__footer'>
-        <VoteButtons />
+        <VoteButtons disabled={!!currentPlanVote?.result} />
       </Flex>
     </div>
   )
