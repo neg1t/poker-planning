@@ -5,6 +5,7 @@ import { Card, Flex, Typography } from 'antd'
 import clsx from 'clsx'
 import crownIcon from 'shared/assets/icons/crown.svg'
 import './styles.scss'
+import { userModel } from 'entities/user'
 
 const { Text } = Typography
 
@@ -19,6 +20,11 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
 
   const plan = useUnit(stores.$currentPlan)
   const planVote = useUnit(stores.$currentPlanVote)
+  const mySelf = useUnit(userModel.stores.$user)
+
+  const mySelfVote = planVote?.usersVotes.filter(
+    (userVote) => userVote.id === mySelf?.uid,
+  )[0]?.vote
 
   if (!plan?.users?.length) {
     return null
@@ -41,7 +47,12 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
           {plan.creatorId === user.id && (
             <img className='user-card__lead' src={crownIcon} alt='lead' />
           )}
-          <Text>{user.name || 'Кто ты воин?'}</Text>
+          <Flex vertical justify='center' align='center'>
+            {user.id === mySelf?.uid && mySelfVote && (
+              <div className='user-card__vote'>{mySelfVote}</div>
+            )}
+            <Text>{user.name || 'Кто ты воин?'}</Text>
+          </Flex>
         </Card>
       ))}
     </Flex>

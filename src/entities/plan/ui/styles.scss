@@ -1,7 +1,7 @@
 .user-card {
   background-color: var(--ant-red-4);
   width: 150px;
-  height: 70px;
+  height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,6 +13,16 @@
     position: absolute;
     top: 5px;
     right: 5px;
+  }
+
+  &__vote {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px 10px;
+    background-color: var(--ant-cyan-7);
+    border: 1px solid white;
+    border-radius: 10px;
   }
 
   &_voted {
