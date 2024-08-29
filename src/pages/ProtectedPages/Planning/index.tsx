@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { planModel, UsersList, VoteButtons } from 'entities/plan'
 import { useUnit } from 'effector-react'
-import { Button, Divider, Flex, Typography } from 'antd'
+import { Button, Divider, Flex, theme, Typography } from 'antd'
 import { Spinner } from 'shared/components'
 import { userModel } from 'entities/user'
 import { DB_TABLES } from 'shared/api'
@@ -10,11 +10,16 @@ import { doc, getFirestore, onSnapshot } from 'firebase/firestore'
 import type { Unsubscribe } from 'firebase/auth'
 import type { PlanDTO, PlanVoteDTO } from 'shared/api/plan/types'
 import useUpdateUserName from 'shared/hooks/useUpdateUserName'
-import './styles.scss'
 import useComponentWillUnmount from 'shared/hooks/useComponentWillUnmount'
+import { PlanningHeader } from 'feature/planning'
+import './styles.scss'
 
 export const PlanningPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+
+  const {
+    token: { marginSM },
+  } = theme.useToken()
 
   const { effects, stores, events } = planModel
   const location = useLocation()
@@ -139,9 +144,11 @@ export const PlanningPage: React.FC = () => {
   return (
     <div className='planning-page'>
       <Flex flex={'5%'} justify='center' className='planning-page__header'>
-        <div />
+        <PlanningHeader />
       </Flex>
-      <Divider />
+
+      <Divider style={{ margin: marginSM }} />
+
       <Flex flex={'85%'} justify='center' className='planning-page__content'>
         <Flex vertical gap={20}>
           <UsersList />
@@ -151,6 +158,7 @@ export const PlanningPage: React.FC = () => {
               <Typography.Text>
                 Результат: {currentPlanVote?.result}
               </Typography.Text>
+
               <Button
                 disabled={!isCreator}
                 onClick={createNewVoting}
@@ -175,7 +183,9 @@ export const PlanningPage: React.FC = () => {
           )}
         </Flex>
       </Flex>
-      <Divider />
+
+      <Divider style={{ margin: marginSM }} />
+
       <Flex flex={'10%'} justify='center' className='planning-page__footer'>
         <VoteButtons disabled={!!currentPlanVote?.result} />
       </Flex>

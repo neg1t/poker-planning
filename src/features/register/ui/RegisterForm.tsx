@@ -1,45 +1,21 @@
-import { Button, Flex, Form, Input, Result } from 'antd'
+import { Button, Flex, Form, Input } from 'antd'
 import { useForm } from 'effector-forms'
 import { useUnit } from 'effector-react'
 import { signUpModel } from 'entities/signUp'
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 import useComponentWillUnmount from 'shared/hooks/useComponentWillUnmount'
 import { utils } from 'shared/utils'
 
 export const RegisterForm: React.FC = () => {
-  const { stores, effects, events } = signUpModel
-
-  const navigate = useNavigate()
+  const { stores, effects } = signUpModel
 
   const { values, fields, submit, reset } = useForm(stores.$form)
-
-  const isRegisterSuccess = useUnit(stores.$registerSuccess)
 
   const isLoading = useUnit(effects.createUserFx.pending)
 
   useComponentWillUnmount(() => {
     reset()
-    events.setRegisterIsSuccess(false)
   })
-
-  const loginClickHandler = () => {
-    navigate('/login')
-  }
-
-  if (isRegisterSuccess) {
-    return (
-      <Result
-        status='success'
-        title='Вы успешно зарегистрировались'
-        extra={[
-          <Button type='primary' onClick={loginClickHandler}>
-            Войти
-          </Button>,
-        ]}
-      />
-    )
-  }
 
   return (
     <Form layout='vertical' className='w-300'>
