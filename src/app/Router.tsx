@@ -19,28 +19,24 @@ const weakRoutes: TRoute[] = [
     path: '/',
   },
   {
-    element: <LoginPage />,
-    path: '/login',
-  },
-  {
     element: <RegisterPage />,
     path: '/register',
+  },
+  {
+    element: <LoginPage />,
+    path: '/login',
   },
   {
     element: <PlanningPage />,
     path: '/planning/:id',
   },
+  {
+    element: <NotFoundPage />,
+    path: '/*',
+  },
 ]
 
 const protectedRoutes: TRoute[] = [
-  {
-    path: '/register',
-    element: <Navigate to='/' replace />,
-  },
-  {
-    path: '/login',
-    element: <Navigate to='/' replace />,
-  },
   {
     path: '/',
     element: <ProtectedDashboardPage />,
@@ -53,6 +49,10 @@ const protectedRoutes: TRoute[] = [
     element: <SettingsPage />,
     path: '/settings',
   },
+  {
+    path: '/*',
+    element: <Navigate to='/' replace />,
+  },
 ]
 
 interface RouterProps {
@@ -62,13 +62,10 @@ interface RouterProps {
 export const Router: React.FC<RouterProps> = (props) => {
   const { isAuth } = props
 
+  console.log('isAuth', isAuth)
+
   const renderRoutes = (routes: TRoute[]) =>
     routes.map((route) => <Route key={route.path} {...route} />)
 
-  return (
-    <Routes>
-      {renderRoutes(isAuth ? protectedRoutes : weakRoutes)}
-      <Route path='*' element={<NotFoundPage />} />
-    </Routes>
-  )
+  return <Routes>{renderRoutes(isAuth ? protectedRoutes : weakRoutes)}</Routes>
 }
