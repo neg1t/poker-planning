@@ -10,6 +10,7 @@ const components: ThemeConfig['components'] = {
     itemMarginBottom: 14,
   },
   Layout: {
+    headerPadding: 14,
     headerBg: '#7e92a6',
     padding: 0,
   },

@@ -1,17 +1,30 @@
-import { Button, Flex, Layout } from 'antd'
-import React, { useEffect } from 'react'
-import { HomeOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
+import { Button, Drawer, Flex, Layout, Modal, Typography } from 'antd'
+import React, { useEffect, useState } from 'react'
+import {
+  HomeOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+  MenuOutlined,
+  UserOutlined,
+  EditOutlined,
+  SettingOutlined,
+} from '@ant-design/icons'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 import { Spinner } from 'shared/components'
 import { useUnit } from 'effector-react'
-import { userModel } from 'entities/user'
+import { UpdateUserNameForm, userModel } from 'entities/user'
 import { Router } from './Router'
 import { planModel } from 'entities/plan'
+import { FormProps } from 'antd/lib'
 import './styles.scss'
 
 export const AppLayout: React.FC = () => {
   const { events, stores } = userModel
+
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const location = useLocation()
 
   const firebaseAuth = getAuth()
   const auth = useUnit(stores.$auth)
@@ -35,6 +48,11 @@ export const AppLayout: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userShouldNavigate, user])
+
+  // закрываем Drawer после перехода на другую страницу
+  useEffect(() => {
+    setDrawerOpen(false)
+  }, [location])
 
   const homeClickHandler = () => {
     navigate('/')
@@ -61,6 +79,47 @@ export const AppLayout: React.FC = () => {
     navigate('/register')
   }
 
+  const onOpenDrawer = () => {
+    setDrawerOpen(true)
+  }
+
+  const onCloseDrawer = () => {
+    setDrawerOpen(false)
+  }
+
+  const saveUserNameHandler: FormProps['onFinish'] = (values: {
+    userName: string
+  }) => {
+    if (user) {
+      userModel.effects
+        .updateUserNameFx({
+          user: user,
+          name: values.userName,
+        })
+        .then(() => {
+          if (plan) {
+            planModel.effects.updatePlanUserNameFx({
+              userId: user.uid,
+              planId: plan.id,
+              userName: values.userName,
+            })
+          }
+          Modal.destroyAll()
+        })
+    }
+  }
+
+  const changeName = () => {
+    setDrawerOpen(false)
+    Modal.info({
+      icon: null,
+      closable: true,
+      title: 'Изменение имени',
+      content: <UpdateUserNameForm onFinish={saveUserNameHandler} />,
+      footer: null,
+    })
+  }
+
   if (userDataLoad === false) {
     return <Spinner.Screen />
   }
@@ -68,13 +127,24 @@ export const AppLayout: React.FC = () => {
   return (
     <Layout className='app-layout'>
       <Layout.Header className='app-layout__header'>
-        <Flex justify='space-between' className='menu'>
-          <Button
-            type='primary'
-            size='small'
-            icon={<HomeOutlined />}
-            onClick={homeClickHandler}
-          />
+        <Flex justify='space-between' align='center' className='menu'>
+          <Flex gap={20} align='center'>
+            {user ? (
+              <Button
+                onClick={onOpenDrawer}
+                icon={<MenuOutlined />}
+                type='text'
+              />
+            ) : (
+              <div />
+            )}
+            <Button
+              type='primary'
+              size='small'
+              icon={<HomeOutlined />}
+              onClick={homeClickHandler}
+            />
+          </Flex>
 
           <Flex gap={20}>
             {!user && (
@@ -104,6 +174,31 @@ export const AppLayout: React.FC = () => {
           </Flex>
         </Flex>
       </Layout.Header>
+
+      {user && (
+        <Drawer
+          width={270}
+          title={
+            <Flex align='center' gap={20}>
+              <UserOutlined />
+              <Typography.Text>{user.displayName}</Typography.Text>
+            </Flex>
+          }
+          closable={false}
+          open={drawerOpen}
+          onClose={onCloseDrawer}
+          placement='left'
+        >
+          <ul className='drawer-list'>
+            <Link className='drawer-list__item' to={'/settings'}>
+              <SettingOutlined /> Настройки
+            </Link>
+            <div className='drawer-list__item' onClick={changeName}>
+              <EditOutlined /> Изменить имя
+            </div>
+          </ul>
+        </Drawer>
+      )}
 
       <Layout.Content className='app-layout__content'>
         <Router isAuth={!!user} />

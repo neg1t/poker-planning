@@ -1,9 +1,9 @@
-import { Button, Flex, Form, Input, Modal } from 'antd'
+import { Modal } from 'antd'
+import { FormProps } from 'antd/lib'
 import { useUnit } from 'effector-react'
 import { planModel } from 'entities/plan'
-import { userModel } from 'entities/user'
+import { UpdateUserNameForm, userModel } from 'entities/user'
 import { useEffect } from 'react'
-import { utils } from 'shared/utils'
 
 interface UseUpdateUserNameProps {
   id?: string
@@ -18,7 +18,9 @@ export const useUpdateUserName = (props: UseUpdateUserNameProps) => {
 
   //todo тут бы еще блокировать нажатие ESC
 
-  const saveUserNameHandler = (values: { userName: string }) => {
+  const saveUserNameHandler: FormProps['onFinish'] = (values: {
+    userName: string
+  }) => {
     if (mySelf) {
       userModel.effects
         .updateUserNameFx({
@@ -42,31 +44,7 @@ export const useUpdateUserName = (props: UseUpdateUserNameProps) => {
         maskClosable: false,
         icon: null,
         title: 'Кажется Вы не представились',
-        content: (
-          <Form layout='vertical' onFinish={saveUserNameHandler}>
-            <Form.Item
-              name='userName'
-              label='Имя'
-              required={false}
-              rules={[
-                {
-                  required: true,
-                  message: utils.validation.validationText.required,
-                },
-              ]}
-            >
-              <Input name='userName' placeholder='Введите имя' />
-            </Form.Item>
-            <Form.Item>
-              <Flex justify='space-between'>
-                <div />
-                <Button type='primary' htmlType='submit'>
-                  Сохранить
-                </Button>
-              </Flex>
-            </Form.Item>
-          </Form>
-        ),
+        content: <UpdateUserNameForm onFinish={saveUserNameHandler} />,
         footer: null,
       })
     } else {
