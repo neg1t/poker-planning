@@ -1,0 +1,22 @@
+{
+  "name": "Poker Planning",
+  "background_color": "#000",
+  "start_url": "/",
+  "display": "fullscreen",
+  "id": "Poker Planning",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/32_32.png",
+      "sizes": "32x32"
+    },
+    {
+      "src": "/57_57.png",
+      "sizes": "57x57"
+    },
+    {
+      "src": "/180_180.png",
+      "sizes": "180x180"
+    }
+  ]
+}
